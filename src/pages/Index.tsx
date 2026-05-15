@@ -155,13 +155,15 @@ const Index = () => {
                   then shows you the studies behind every claim.
                 </p>
                 <div className="mt-8 grid w-full max-w-2xl grid-cols-1 gap-2 sm:grid-cols-2">
-                  {SUGGESTIONS.map((s) => (
+                  {SUGGESTIONS.map((s, i) => (
                     <button
-                      key={s}
-                      onClick={() => send(s)}
-                      className="rounded-xl border border-border/60 bg-card/40 p-3 text-left text-sm text-foreground/80 transition-all hover:border-primary/40 hover:bg-card hover:text-foreground"
+                      key={s.label}
+                      onClick={() => send(s.label)}
+                      style={{ animationDelay: `${i * 80}ms` }}
+                      className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 p-3 text-left text-sm text-foreground/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-card hover:text-foreground hover:shadow-elegant animate-fade-in"
                     >
-                      {s}
+                      <span className="text-lg transition-transform duration-300 group-hover:scale-110">{s.icon}</span>
+                      <span className="flex-1">{s.label}</span>
                     </button>
                   ))}
                 </div>
