@@ -36,6 +36,7 @@ interface SidebarProps {
 
 export function CuralinkSidebar({ sessions, activeId, onSelect, onNewChat, collapsed, onToggle }: SidebarProps) {
   const groups = groupSessions(sessions);
+  const { user, login, logout } = useCuraUser();
 
   return (
     <aside
