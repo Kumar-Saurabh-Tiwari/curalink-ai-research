@@ -186,7 +186,7 @@ const Index = () => {
                 e.preventDefault();
                 send(input);
               }}
-              className="relative rounded-2xl border border-border bg-card/60 shadow-elegant focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/40 transition-all"
+              className="relative rounded-2xl border border-border bg-card/60 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/40 transition-all"
             >
               <Textarea
                 value={input}
