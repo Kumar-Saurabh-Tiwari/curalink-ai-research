@@ -10,10 +10,10 @@ import { ChatSession, Message } from "@/lib/curalink-types";
 import { generateMockResponse, seedSessions } from "@/lib/curalink-mock";
 
 const SUGGESTIONS = [
-  "Summarize Phase 3 evidence for tirzepatide in obesity",
-  "Compare CAR-T outcomes across DLBCL trials",
-  "Latest meta-analyses on SGLT2 inhibitors in HFpEF",
-  "Microbiome interventions for ulcerative colitis",
+  { label: "Latest treatment for lung cancer", icon: "🫁" },
+  { label: "Clinical trials for diabetes", icon: "💉" },
+  { label: "Top researchers in Alzheimer's disease", icon: "🧠" },
+  { label: "Recent studies on heart disease", icon: "❤️" },
 ];
 
 const Index = () => {
@@ -87,7 +87,13 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+    <div className="relative flex h-screen w-full overflow-hidden bg-background text-foreground">
+      {/* Ambient animated gradient backdrop */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-[480px] w-[480px] rounded-full bg-primary/20 blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-32 h-[420px] w-[420px] rounded-full bg-cyan-500/15 blur-3xl animate-blob [animation-delay:3s]" />
+        <div className="absolute -bottom-40 left-1/3 h-[460px] w-[460px] rounded-full bg-indigo-500/15 blur-3xl animate-blob [animation-delay:6s]" />
+      </div>
       {/* SEO landing — visually hidden, accessible to crawlers */}
       <section className="sr-only">
         <h1>Curalink — AI Medical Research Assistant</h1>
@@ -149,13 +155,15 @@ const Index = () => {
                   then shows you the studies behind every claim.
                 </p>
                 <div className="mt-8 grid w-full max-w-2xl grid-cols-1 gap-2 sm:grid-cols-2">
-                  {SUGGESTIONS.map((s) => (
+                  {SUGGESTIONS.map((s, i) => (
                     <button
-                      key={s}
-                      onClick={() => send(s)}
-                      className="rounded-xl border border-border/60 bg-card/40 p-3 text-left text-sm text-foreground/80 transition-all hover:border-primary/40 hover:bg-card hover:text-foreground"
+                      key={s.label}
+                      onClick={() => send(s.label)}
+                      style={{ animationDelay: `${i * 80}ms` }}
+                      className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 p-3 text-left text-sm text-foreground/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-card hover:text-foreground hover:shadow-elegant animate-fade-in"
                     >
-                      {s}
+                      <span className="text-lg transition-transform duration-300 group-hover:scale-110">{s.icon}</span>
+                      <span className="flex-1">{s.label}</span>
                     </button>
                   ))}
                 </div>
