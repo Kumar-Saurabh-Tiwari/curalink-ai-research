@@ -105,11 +105,14 @@ export function CuralinkSidebar({ sessions, activeId, onSelect, onNewChat, colla
         </nav>
       )}
 
-      {!collapsed && (
-        <div className="border-t border-sidebar-border p-3 text-[11px] text-muted-foreground">
-          Grounded on PubMed · OpenAlex · ClinicalTrials.gov
-        </div>
-      )}
+      <div className="border-t border-sidebar-border p-3 space-y-2">
+        <UserProfile collapsed={collapsed} user={user} onLogin={login} onLogout={logout} />
+        {!collapsed && (
+          <div className="text-[10px] text-muted-foreground/70 text-center">
+            PubMed · OpenAlex · ClinicalTrials.gov
+          </div>
+        )}
+      </div>
     </aside>
   );
 }
