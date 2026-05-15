@@ -36,7 +36,7 @@ interface SidebarProps {
 
 export function CuralinkSidebar({ sessions, activeId, onSelect, onNewChat, collapsed, onToggle }: SidebarProps) {
   const groups = groupSessions(sessions);
-  const { user, login, logout } = useCuraUser();
+  const { user, login, logout, update } = useCuraUser();
 
   return (
     <aside
@@ -106,7 +106,7 @@ export function CuralinkSidebar({ sessions, activeId, onSelect, onNewChat, colla
       )}
 
       <div className="border-t border-sidebar-border p-3 space-y-2">
-        <UserProfile collapsed={collapsed} user={user} onLogin={login} onLogout={logout} />
+        <UserProfile collapsed={collapsed} user={user} onLogin={login} onLogout={logout} onUpdate={update} />
         {!collapsed && (
           <div className="text-[10px] text-muted-foreground/70 text-center">
             PubMed · OpenAlex · ClinicalTrials.gov
