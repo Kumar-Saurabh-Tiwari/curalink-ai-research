@@ -10,10 +10,10 @@ import { ChatSession, Message } from "@/lib/curalink-types";
 import { generateMockResponse, seedSessions } from "@/lib/curalink-mock";
 
 const SUGGESTIONS = [
-  "Summarize Phase 3 evidence for tirzepatide in obesity",
-  "Compare CAR-T outcomes across DLBCL trials",
-  "Latest meta-analyses on SGLT2 inhibitors in HFpEF",
-  "Microbiome interventions for ulcerative colitis",
+  { label: "Latest treatment for lung cancer", icon: "🫁" },
+  { label: "Clinical trials for diabetes", icon: "💉" },
+  { label: "Top researchers in Alzheimer's disease", icon: "🧠" },
+  { label: "Recent studies on heart disease", icon: "❤️" },
 ];
 
 const Index = () => {
