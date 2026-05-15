@@ -2,6 +2,7 @@ import { Plus, MessageSquare, Activity, PanelLeftClose, PanelLeft } from "lucide
 import { ChatSession } from "@/lib/curalink-types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { UserProfile, useCuraUser } from "./UserProfile";
 
 type Group = { label: string; sessions: ChatSession[] };
 
