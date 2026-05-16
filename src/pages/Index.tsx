@@ -334,14 +334,14 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="border-t border-border/60 bg-background/80 px-4 py-4 backdrop-blur">
+        <div className="border-t border-border/60 bg-card/40 px-4 py-4 backdrop-blur-xl">
           <div className="mx-auto w-full max-w-3xl">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 send(input);
               }}
-              className="relative rounded-2xl border border-border bg-card/60 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/40 transition-all"
+              className="relative rounded-2xl border border-border/70 bg-card/80 shadow-elegant focus-within:border-primary/60 focus-within:ring-1 focus-within:ring-primary/40 transition-all"
             >
               <Textarea
                 value={input}
@@ -354,7 +354,7 @@ const Index = () => {
                 }}
                 placeholder="Ask a clinical research question…"
                 rows={1}
-                className="min-h-[56px] resize-none border-0 bg-transparent px-4 py-4 pr-14 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="min-h-[56px] resize-none border-0 bg-transparent px-4 py-4 pr-14 text-sm text-foreground placeholder:text-muted-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0"
               />
               <Button
                 type="submit"
@@ -365,7 +365,7 @@ const Index = () => {
                 <ArrowUp className="h-4 w-4" />
               </Button>
             </form>
-            <p className="mt-2 text-center text-[11px] text-muted-foreground">
+            <p className="mt-2 text-center text-[11px] text-foreground/70">
               Curalink synthesizes literature for research support — verify with primary sources before clinical use.
             </p>
           </div>
