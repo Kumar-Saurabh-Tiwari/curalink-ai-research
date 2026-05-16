@@ -7,7 +7,8 @@ import { MessageBubble } from "@/components/curalink/MessageBubble";
 import { ResearchDrawer } from "@/components/curalink/ResearchDrawer";
 import { FetchingIndicator } from "@/components/curalink/FetchingIndicator";
 import { ChatSession, Message } from "@/lib/curalink-types";
-import { generateMockResponse, seedSessions } from "@/lib/curalink-mock";
+import { seedSessions } from "@/lib/curalink-mock";
+import { sendChatMessage, getConversation } from "@/api/chatApi";
 
 const SUGGESTIONS = [
   { label: "Latest treatment for lung cancer", icon: "🫁" },
@@ -16,8 +17,20 @@ const SUGGESTIONS = [
   { label: "Recent studies on heart disease", icon: "❤️" },
 ];
 
+const loadSavedSessions = (): ChatSession[] => {
+  try {
+    const saved = localStorage.getItem("curalink:sessions");
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (error) {
+    console.error("Failed to parse sessions from local storage", error);
+  }
+  return [];
+};
+
 const Index = () => {
-  const [sessions, setSessions] = useState<ChatSession[]>(seedSessions);
+  const [sessions, setSessions] = useState<ChatSession[]>(loadSavedSessions);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -27,21 +40,70 @@ const Index = () => {
   const [activeMsgId, setActiveMsgId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Load the most recent conversation on initial page load
+  useEffect(() => {
+    if (sessions.length > 0 && !activeId) {
+      const firstSessionId = sessions[0].id;
+      setActiveId(firstSessionId);
+      
+      const loadInitial = async () => {
+        setLoading(true);
+        try {
+          const data = await getConversation(firstSessionId);
+          // Ensure messages have ids and correct content fallbacks
+          const mappedMessages = (data.messages || data || []).map((m: any) => ({
+            ...m,
+            id: m.id || m._id || crypto.randomUUID(),
+            content: m.content || m.reply || (m.response ? m.response.conditionOverview : (m.structuredResponse ? m.structuredResponse.conditionOverview : "")),
+            sources: m.sources || m.topPublications || [],
+            trials: m.trials || m.topTrials || []
+          }));
+          setMessages(mappedMessages);
+        } catch (error) {
+          console.error("Error fetching initial conversation:", error);
+          setMessages(sessions[0].messages ?? []);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      loadInitial();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const activeMessage = messages.find((m) => m.id === activeMsgId) ?? null;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
+  useEffect(() => {
+    localStorage.setItem("curalink:sessions", JSON.stringify(sessions));
+  }, [sessions]);
+
+  const updateOrAddSession = (msgList: Message[], sessionId: string) => {
+    if (msgList.length === 0) return;
+    const title =
+      msgList.find((m) => m.role === "user")?.content.slice(0, 60) || "Untitled session";
+    setSessions((prev) => {
+      const exists = prev.find((s) => s.id === sessionId);
+      if (exists) {
+        return prev.map((s) => (s.id === sessionId ? { ...s, title, messages: msgList } : s));
+      }
+      return [{ id: sessionId, title, messages: msgList, createdAt: Date.now() }, ...prev];
+    });
+  };
+
   const persistCurrent = () => {
     if (messages.length === 0) return;
     const title =
       messages.find((m) => m.role === "user")?.content.slice(0, 60) || "Untitled session";
     if (activeId) {
-      setSessions((prev) => prev.map((s) => (s.id === activeId ? { ...s, title, messages } : s)));
+      updateOrAddSession(messages, activeId);
     } else {
       const id = crypto.randomUUID();
-      setSessions((prev) => [{ id, title, messages, createdAt: Date.now() }, ...prev]);
+      updateOrAddSession(messages, id);
     }
   };
 
@@ -54,12 +116,32 @@ const Index = () => {
     setInput("");
   };
 
-  const handleSelectSession = (id: string) => {
+  const handleSelectSession = async (id: string) => {
     persistCurrent();
     const s = sessions.find((x) => x.id === id);
     setActiveId(id);
-    setMessages(s?.messages ?? []);
     setActiveMsgId(null);
+    setDrawerOpen(false);
+
+    try {
+      setLoading(true);
+      const data = await getConversation(id);
+      
+      // Ensure messages have ids and correct content fallbacks
+      const mappedMessages = (data.messages || data || []).map((m: any) => ({
+        ...m,
+        id: m.id || m._id || crypto.randomUUID(),
+        content: m.content || m.reply || (m.response ? m.response.conditionOverview : (m.structuredResponse ? m.structuredResponse.conditionOverview : "")),
+        sources: m.sources || m.topPublications || [],
+        trials: m.trials || m.topTrials || []
+      }));
+      setMessages(mappedMessages);
+    } catch (error) {
+      console.error("Error fetching conversation:", error);
+      setMessages(s?.messages ?? []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const send = async (text: string) => {
@@ -70,15 +152,50 @@ const Index = () => {
       content: text.trim(),
       timestamp: Date.now(),
     };
+    
+    let currentSessionId = activeId;
+    if (!currentSessionId) {
+      currentSessionId = crypto.randomUUID();
+      setActiveId(currentSessionId);
+    }
+
     setMessages((m) => [...m, userMsg]);
     setInput("");
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1800));
-    const reply = generateMockResponse(text);
-    const aiMsg: Message = { ...reply, id: crypto.randomUUID(), timestamp: Date.now() };
-    setMessages((m) => [...m, aiMsg]);
-    setActiveMsgId(aiMsg.id);
-    setLoading(false);
+
+    try {
+      const reply = await sendChatMessage({ message: text, sessionId: currentSessionId });
+      // Map response to Message format if needed, ensuring it has id and timestamp
+      const aiMsg: Message = { 
+        ...reply, 
+        id: reply.id || reply._id || crypto.randomUUID(), 
+        role: reply.role || "assistant",
+        content: reply.content || reply.reply || (reply.response ? reply.response.conditionOverview : (reply.structuredResponse ? reply.structuredResponse.conditionOverview : "No response text found.")),
+        sources: reply.sources || reply.topPublications || [],
+        trials: reply.trials || reply.topTrials || [],
+        timestamp: reply.timestamp || reply.createdAt || Date.now() 
+      };
+      
+      setMessages((prev) => {
+        // Need to make sure we don't duplicate userMsg if it was already added before await
+        // Since we did setMessages((m) => [...m, userMsg]) above, prev already has userMsg
+        const newMessages = [...prev, aiMsg];
+        updateOrAddSession(newMessages, currentSessionId as string);
+        return newMessages;
+      });
+      setActiveMsgId(aiMsg.id);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMsg: Message = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: "Sorry, I encountered an error while processing your request.",
+        timestamp: Date.now(),
+      };
+      setMessages((m) => [...m, errorMsg]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onMessageClick = (id: string) => {
