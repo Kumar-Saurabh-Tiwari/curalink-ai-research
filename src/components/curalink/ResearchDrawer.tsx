@@ -96,16 +96,17 @@ export function ResearchDrawer({ message, open, onClose }: Props) {
                     Sources & Metadata
                   </h3>
                   <ul className="space-y-2">
-                    {message.sources.map((s) => {
-                      const Icon = sourceIcon[s.source];
+                    {message.sources.map((s, index) => {
+                      const sourceName = s.source || (s as any).sourcePlatform || "Unknown";
+                      const Icon = sourceIcon[sourceName as keyof typeof sourceIcon] || Database;
                       return (
                         <li
-                          key={s.id}
+                          key={s.id || index}
                           className="rounded-lg border border-border/60 bg-background/40 p-3 text-sm"
                         >
                           <div className="mb-1 flex items-center gap-2">
                             <Icon className="h-3.5 w-3.5 text-primary" />
-                            <span className="text-[11px] font-medium text-primary">{s.source}</span>
+                            <span className="text-[11px] font-medium text-primary">{sourceName}</span>
                             {s.date && <span className="ml-auto text-[11px] text-muted-foreground">{s.date}</span>}
                           </div>
                           <div className="font-medium leading-snug">{s.title}</div>
@@ -143,25 +144,32 @@ export function ResearchDrawer({ message, open, onClose }: Props) {
                         </tr>
                       </thead>
                       <tbody>
-                        {message.trials.map((t) => (
-                          <tr key={t.id} className="border-t border-border/60">
-                            <td className="px-3 py-2 font-medium">{t.name}</td>
-                            <td className="px-3 py-2 text-primary">{t.phase}</td>
-                            <td className="px-3 py-2 text-right tabular-nums">{t.participants.toLocaleString()}</td>
+                        {message.trials.map((t: any) => {
+                          const trialName = t.name || t.title || "Unknown Trial";
+                          const trialPhase = t.phase || (t.metadata && t.metadata.phase && t.metadata.phase[0]) || "N/A";
+                          const trialParticipants = t.participants ?? (t.metadata && t.metadata.enrollment) ?? 0;
+                          const trialStatus = t.status || t.trialStatus || "Unknown";
+
+                          return (
+                          <tr key={t.id || trialName} className="border-t border-border/60">
+                            <td className="px-3 py-2 font-medium">{trialName}</td>
+                            <td className="px-3 py-2 text-primary">{trialPhase}</td>
+                            <td className="px-3 py-2 text-right tabular-nums">{trialParticipants.toLocaleString()}</td>
                             <td className="px-3 py-2">
                               <span
                                 className={cn(
-                                  "inline-block rounded-full px-2 py-0.5 text-[10px] font-medium",
-                                  t.status === "Completed" && "bg-emerald-500/15 text-emerald-400",
-                                  t.status === "Active" && "bg-blue-500/15 text-blue-400",
-                                  t.status === "Recruiting" && "bg-amber-500/15 text-amber-400",
+                                  "inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-secondary/50 text-foreground", // Default state fallback
+                                  (trialStatus === "Completed" || trialStatus === "COMPLETED") && "bg-emerald-500/15 text-emerald-400",
+                                  (trialStatus === "Active" || trialStatus === "ACTIVE") && "bg-blue-500/15 text-blue-400",
+                                  (trialStatus === "Recruiting" || trialStatus === "RECRUITING") && "bg-amber-500/15 text-amber-400",
                                 )}
                               >
-                                {t.status}
+                                {trialStatus}
                               </span>
                             </td>
                           </tr>
-                        ))}
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

@@ -44,15 +44,16 @@ export function MessageBubble({ message, active, onClick }: Props) {
 
         {message.sources && message.sources.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {message.sources.map((s) => {
-              const Icon = sourceIcon[s.source];
+            {message.sources.map((s, index) => {
+              const sourceName = s.source || (s as any).sourcePlatform || "Unknown";
+              const Icon = sourceIcon[sourceName as keyof typeof sourceIcon] || Database;
               return (
                 <span
-                  key={s.id}
+                  key={s.id || index}
                   className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
                 >
                   <Icon className="h-3 w-3" />
-                  {s.source}
+                  {sourceName}
                 </span>
               );
             })}
