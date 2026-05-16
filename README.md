@@ -1,73 +1,91 @@
-# Welcome to your Lovable project
+# Curalink — AI Medical Research Assistant
 
-## Project info
+Curalink is a state-of-the-art AI-powered medical research assistant designed to deliver evidence-based clinical insights. By actively retrieving data from leading medical and academic repositories—including **PubMed**, **OpenAlex**, and **ClinicalTrials.gov**—it ensures accurate, up-to-date, and highly relevant responses for medical professionals, researchers, and students.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Key Features
 
-## How can I edit this code?
+- **Intelligent Medical Chat**: Conversational AI interface referencing real clinical trials and research papers.
+- **Evidence-Based Grounding**: Automatically searches and references data from reliable medical databases.
+- **Research Drawer**: A dedicated fly-out drawer to view in-depth details about cited papers and clinical trials, complete with metadata and links to original sources.
+- **Dynamic Visuals & State Management**: Real-time fetching indicators and beautifully rendered message bubbles for a seamless chatter experience.
+- **Modern Responsive UI**: Built with a mobile-first philosophy, adapting beautifully across desktops and mobile viewing environments.
+- **Dark & Light Mode**: Built-in support for theme toggling to accommodate varying preferences and low-light environments.
+- **High-Performance Infrastructure**: Lightning-fast builds, instant Hot Module Reloading (HMR), and optimized production bundles.
 
-There are several ways of editing your application.
+## 🛠️ Technology Stack
 
-**Use Lovable**
+- **Framework**: [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/) with SWC for extremely fast development cycles
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/) (Radix UI + Tailwind)
+- **Data Fetching**: [React Query (TanStack Query)](https://tanstack.com/query/latest)
+- **Routing**: [React Router](https://reactrouter.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Animations**: Framer Motion & standard Tailwind animations (`tailwindcss-animate`)
+- **Testing**: [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🏗️ Project Structure
 
-Changes made via Lovable will be committed automatically to this repo.
+- `src/components/curalink/`: Contains domain-specific components (e.g., `MessageBubble`, `ResearchDrawer`, `Sidebar`, `FetchingIndicator`).
+- `src/components/ui/`: Contains generic, reusable UI components built via shadcn/ui.
+- `src/api/`: Manages external API interactions, data fetching logic, and connections to PubMed/OpenAlex (`chatApi.js`).
+- `src/hooks/`: Custom React hooks (`use-mobile.tsx`, `use-toast.ts`).
+- `src/lib/`: Utilities, mock data (`curalink-mock.ts`), and TypeScript type definitions (`curalink-types.ts`).
+- `src/pages/`: Application views and routing pages (`Index.tsx`, `NotFound.tsx`).
 
-**Use your preferred IDE**
+## 💻 How to Run Locally
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+You need [Node.js](https://nodejs.org/) (version 18+) installed.
 
-Follow these steps:
+### Setup Steps
+
+1. **Clone the repository:**
+   ```sh
+   git clone <YOUR_GIT_URL>
+   cd curalink-ai-research
+   ```
+
+2. **Install dependencies:**
+   ```sh
+   npm install
+   # or
+   bun install
+   ```
+
+3. **Start the development server:**
+   ```sh
+   npm run dev
+   # or
+   bun run dev
+   ```
+
+4. **Open your browser:**
+   Navigate to `http://localhost:5173` to see the application running.
+
+## 🧪 Testing
+
+To execute the unit and integration tests setup with Vitest and React Testing Library:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Run tests
+npm run test
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Run tests in watch mode
+npm run test:watch
 ```
 
-**Edit a file directly in GitHub**
+## 📦 Building for Production
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+To build the project for a production environment:
 
-**Use GitHub Codespaces**
+```sh
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This will generate an optimized build in the `dist` folder. To preview the production build locally:
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```sh
+npm run preview
+```
