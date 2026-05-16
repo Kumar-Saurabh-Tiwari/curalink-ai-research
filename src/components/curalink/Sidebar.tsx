@@ -125,6 +125,7 @@ export function CuralinkSidebar({ sessions, activeId, onSelect, onNewChat, colla
           </div>
         )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
