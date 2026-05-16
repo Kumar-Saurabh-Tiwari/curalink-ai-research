@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, PanelRightOpen, Stethoscope, Sparkles } from "lucide-react";
+import { ArrowUp, PanelRightOpen, Stethoscope, Sparkles, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CuralinkSidebar } from "@/components/curalink/Sidebar";
 import { MessageBubble } from "@/components/curalink/MessageBubble";
 import { ResearchDrawer } from "@/components/curalink/ResearchDrawer";
 import { FetchingIndicator } from "@/components/curalink/FetchingIndicator";
+import { WelcomeOverlay } from "@/components/curalink/WelcomeOverlay";
 import { ChatSession, Message } from "@/lib/curalink-types";
 import { seedSessions } from "@/lib/curalink-mock";
 import { sendChatMessage, getConversation } from "@/api/chatApi";
@@ -35,7 +36,9 @@ const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768,
+  );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeMsgId, setActiveMsgId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -114,6 +117,7 @@ const Index = () => {
     setActiveMsgId(null);
     setDrawerOpen(false);
     setInput("");
+    if (typeof window !== "undefined" && window.innerWidth < 768) setSidebarCollapsed(true);
   };
 
   const handleSelectSession = async (id: string) => {
@@ -122,6 +126,7 @@ const Index = () => {
     setActiveId(id);
     setActiveMsgId(null);
     setDrawerOpen(false);
+    if (typeof window !== "undefined" && window.innerWidth < 768) setSidebarCollapsed(true);
 
     try {
       setLoading(true);
@@ -204,12 +209,13 @@ const Index = () => {
   };
 
   return (
-    <div className="relative flex h-screen w-full overflow-hidden bg-background text-foreground">
+    <div className="relative flex h-[100dvh] w-full overflow-hidden bg-background text-foreground">
+      <WelcomeOverlay />
       {/* Ambient animated gradient backdrop */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 h-[480px] w-[480px] rounded-full bg-primary/20 blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-32 h-[420px] w-[420px] rounded-full bg-cyan-500/15 blur-3xl animate-blob [animation-delay:3s]" />
-        <div className="absolute -bottom-40 left-1/3 h-[460px] w-[460px] rounded-full bg-indigo-500/15 blur-3xl animate-blob [animation-delay:6s]" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden bg-mesh opacity-60">
+        <div className="absolute -top-40 -left-40 h-[480px] w-[480px] rounded-full bg-primary/25 blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-32 h-[420px] w-[420px] rounded-full bg-cyan-500/20 blur-3xl animate-blob [animation-delay:3s]" />
+        <div className="absolute -bottom-40 left-1/3 h-[460px] w-[460px] rounded-full bg-indigo-500/20 blur-3xl animate-blob [animation-delay:6s]" />
       </div>
       {/* SEO landing — visually hidden, accessible to crawlers */}
       <section className="sr-only">
@@ -238,18 +244,27 @@ const Index = () => {
         onToggle={() => setSidebarCollapsed((c) => !c)}
       />
 
-      <main className="flex h-full min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border/60 px-6 py-3">
-          <div className="flex items-center gap-2">
-            <Stethoscope className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">
+      <main className="relative z-10 flex h-full min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between border-b border-border/60 bg-background/40 px-4 sm:px-6 py-3 backdrop-blur-md">
+          <div className="flex items-center gap-2 min-w-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 md:hidden -ml-1"
+              onClick={() => setSidebarCollapsed((c) => !c)}
+              aria-label="Open sidebar"
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+            <Stethoscope className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-sm font-medium truncate">
               {messages.length > 0 ? sessions.find((s) => s.id === activeId)?.title || "New research session" : "New research session"}
             </span>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className="gap-2 text-muted-foreground hover:text-foreground"
+            className="gap-2 text-muted-foreground hover:text-foreground shrink-0"
             onClick={() => setDrawerOpen((d) => !d)}
           >
             <PanelRightOpen className="h-4 w-4" />

@@ -39,13 +39,25 @@ export function CuralinkSidebar({ sessions, activeId, onSelect, onNewChat, colla
   const { user, login, logout, update } = useCuraUser();
 
   return (
-    <aside
-      className={cn(
-        "flex h-full flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300",
-        collapsed ? "w-[60px]" : "w-[280px]",
+    <>
+      {/* Mobile backdrop */}
+      {!collapsed && (
+        <button
+          aria-label="Close sidebar"
+          onClick={onToggle}
+          className="fixed inset-0 z-30 bg-background/70 backdrop-blur-sm md:hidden animate-fade-in"
+        />
       )}
-      aria-label="Research sessions"
-    >
+      <aside
+        className={cn(
+          "z-40 flex h-full flex-col border-r border-sidebar-border bg-sidebar/95 backdrop-blur-xl transition-all duration-300 ease-out",
+          "fixed inset-y-0 left-0 md:relative",
+          collapsed
+            ? "w-[280px] -translate-x-full md:w-[60px] md:translate-x-0"
+            : "w-[280px] translate-x-0",
+        )}
+        aria-label="Research sessions"
+      >
       <div className="flex items-center justify-between gap-2 p-3">
         {!collapsed && (
           <div className="flex items-center gap-2">
@@ -113,6 +125,7 @@ export function CuralinkSidebar({ sessions, activeId, onSelect, onNewChat, colla
           </div>
         )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
