@@ -125,6 +125,7 @@ const Index = () => {
     setActiveId(id);
     setActiveMsgId(null);
     setDrawerOpen(false);
+    if (typeof window !== "undefined" && window.innerWidth < 768) setSidebarCollapsed(true);
 
     try {
       setLoading(true);
