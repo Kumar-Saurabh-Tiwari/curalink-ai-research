@@ -117,6 +117,7 @@ const Index = () => {
     setActiveMsgId(null);
     setDrawerOpen(false);
     setInput("");
+    if (typeof window !== "undefined" && window.innerWidth < 768) setSidebarCollapsed(true);
   };
 
   const handleSelectSession = async (id: string) => {
