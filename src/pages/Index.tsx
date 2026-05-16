@@ -244,18 +244,27 @@ const Index = () => {
         onToggle={() => setSidebarCollapsed((c) => !c)}
       />
 
-      <main className="flex h-full min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border/60 px-6 py-3">
-          <div className="flex items-center gap-2">
-            <Stethoscope className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">
+      <main className="relative z-10 flex h-full min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between border-b border-border/60 bg-background/40 px-4 sm:px-6 py-3 backdrop-blur-md">
+          <div className="flex items-center gap-2 min-w-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 md:hidden -ml-1"
+              onClick={() => setSidebarCollapsed((c) => !c)}
+              aria-label="Open sidebar"
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+            <Stethoscope className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-sm font-medium truncate">
               {messages.length > 0 ? sessions.find((s) => s.id === activeId)?.title || "New research session" : "New research session"}
             </span>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className="gap-2 text-muted-foreground hover:text-foreground"
+            className="gap-2 text-muted-foreground hover:text-foreground shrink-0"
             onClick={() => setDrawerOpen((d) => !d)}
           >
             <PanelRightOpen className="h-4 w-4" />
