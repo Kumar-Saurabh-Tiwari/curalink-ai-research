@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, PanelRightOpen, Stethoscope, Sparkles } from "lucide-react";
+import { ArrowUp, PanelRightOpen, Stethoscope, Sparkles, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CuralinkSidebar } from "@/components/curalink/Sidebar";
 import { MessageBubble } from "@/components/curalink/MessageBubble";
 import { ResearchDrawer } from "@/components/curalink/ResearchDrawer";
 import { FetchingIndicator } from "@/components/curalink/FetchingIndicator";
+import { WelcomeOverlay } from "@/components/curalink/WelcomeOverlay";
 import { ChatSession, Message } from "@/lib/curalink-types";
 import { seedSessions } from "@/lib/curalink-mock";
 import { sendChatMessage, getConversation } from "@/api/chatApi";
