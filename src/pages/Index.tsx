@@ -212,10 +212,25 @@ const Index = () => {
     <div className="relative flex h-[100dvh] w-full overflow-hidden bg-background text-foreground">
       <WelcomeOverlay />
       {/* Ambient animated gradient backdrop */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden bg-mesh opacity-60">
-        <div className="absolute -top-40 -left-40 h-[480px] w-[480px] rounded-full bg-primary/25 blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-32 h-[420px] w-[420px] rounded-full bg-cyan-500/20 blur-3xl animate-blob [animation-delay:3s]" />
-        <div className="absolute -bottom-40 left-1/3 h-[460px] w-[460px] rounded-full bg-indigo-500/20 blur-3xl animate-blob [animation-delay:6s]" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-mesh opacity-80" />
+        <div className="absolute inset-0 bg-grid animate-grid-pulse" />
+        <div className="absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-primary/30 blur-3xl animate-drift" />
+        <div className="absolute top-1/4 -right-40 h-[460px] w-[460px] rounded-full bg-cyan-400/25 blur-3xl animate-aurora [animation-delay:2s]" />
+        <div className="absolute -bottom-40 left-1/4 h-[500px] w-[500px] rounded-full bg-indigo-500/25 blur-3xl animate-drift [animation-delay:5s]" />
+        <div className="absolute top-1/2 left-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-fuchsia-500/15 blur-3xl animate-aurora [animation-delay:8s]" />
+        {/* Floating sparkle particles */}
+        {Array.from({ length: 14 }).map((_, i) => (
+          <span
+            key={i}
+            className="animate-sparkle absolute bottom-[-10px] h-1 w-1 rounded-full bg-primary/60 shadow-[0_0_8px_hsl(var(--primary))]"
+            style={{
+              left: `${(i * 7.3) % 100}%`,
+              animationDuration: `${14 + (i % 5) * 3}s`,
+              animationDelay: `${(i * 1.1) % 12}s`,
+            }}
+          />
+        ))}
       </div>
       {/* SEO landing — visually hidden, accessible to crawlers */}
       <section className="sr-only">
