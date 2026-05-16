@@ -106,6 +106,32 @@
 }
 .animate-fade-in { animation: fade-in 0.45s ease-out both; }
 
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+@keyframes float-up {
+  0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-float-up { animation: float-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow { animation: spin-slow 18s linear infinite; }
+
 @layer utilities {
   .shadow-elegant { box-shadow: var(--shadow-elegant); }
+  .bg-mesh { background-image: var(--gradient-mesh); }
+  .glass {
+    background: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+  }
 }
