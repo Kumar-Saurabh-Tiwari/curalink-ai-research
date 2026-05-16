@@ -209,12 +209,13 @@ const Index = () => {
   };
 
   return (
-    <div className="relative flex h-screen w-full overflow-hidden bg-background text-foreground">
+    <div className="relative flex h-[100dvh] w-full overflow-hidden bg-background text-foreground">
+      <WelcomeOverlay />
       {/* Ambient animated gradient backdrop */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 h-[480px] w-[480px] rounded-full bg-primary/20 blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-32 h-[420px] w-[420px] rounded-full bg-cyan-500/15 blur-3xl animate-blob [animation-delay:3s]" />
-        <div className="absolute -bottom-40 left-1/3 h-[460px] w-[460px] rounded-full bg-indigo-500/15 blur-3xl animate-blob [animation-delay:6s]" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden bg-mesh opacity-60">
+        <div className="absolute -top-40 -left-40 h-[480px] w-[480px] rounded-full bg-primary/25 blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-32 h-[420px] w-[420px] rounded-full bg-cyan-500/20 blur-3xl animate-blob [animation-delay:3s]" />
+        <div className="absolute -bottom-40 left-1/3 h-[460px] w-[460px] rounded-full bg-indigo-500/20 blur-3xl animate-blob [animation-delay:6s]" />
       </div>
       {/* SEO landing — visually hidden, accessible to crawlers */}
       <section className="sr-only">
