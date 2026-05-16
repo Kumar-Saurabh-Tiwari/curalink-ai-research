@@ -36,7 +36,9 @@ const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768,
+  );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeMsgId, setActiveMsgId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
