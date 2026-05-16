@@ -5,15 +5,15 @@
 /* Curalink design system — deep slate + electric medical blue */
 @layer base {
   :root {
-    /* Deep slate (#020617) */
-    --background: 222 47% 4%;
-    --foreground: 210 40% 96%;
+    /* Lifted slate — softer, more modern */
+    --background: 222 38% 8%;
+    --foreground: 210 40% 97%;
 
-    --card: 222 45% 7%;
-    --card-foreground: 210 40% 96%;
+    --card: 222 35% 11%;
+    --card-foreground: 210 40% 97%;
 
-    --popover: 222 45% 6%;
-    --popover-foreground: 210 40% 96%;
+    --popover: 222 38% 10%;
+    --popover-foreground: 210 40% 97%;
 
     /* Medical blue (#3b82f6) */
     --primary: 217 91% 60%;
