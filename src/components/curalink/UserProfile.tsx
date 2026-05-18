@@ -50,10 +50,20 @@ export function useCuraUser() {
     window.dispatchEvent(new Event("curalink:user-updated"));
   };
   const logout = () => {
-    localStorage.removeItem(KEY);
+    try {
+      const privacyAccepted = localStorage.getItem("curalink:privacy-accepted");
+      localStorage.clear();
+      if (privacyAccepted) {
+        localStorage.setItem("curalink:privacy-accepted", privacyAccepted);
+      }
+      sessionStorage.clear();
+    } catch {}
     clearAuthToken();
     setUser(null);
     window.dispatchEvent(new Event("curalink:user-updated"));
+    if (typeof window !== "undefined") {
+      setTimeout(() => window.location.reload(), 50);
+    }
   };
   const update = (patch: Partial<CuraUser>) => {
     setUser((prev) => {

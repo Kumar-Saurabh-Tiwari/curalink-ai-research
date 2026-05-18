@@ -9,7 +9,7 @@ import { FetchingIndicator } from "@/components/curalink/FetchingIndicator";
 import { WelcomeOverlay } from "@/components/curalink/WelcomeOverlay";
 import { ChatSession, Message } from "@/lib/curalink-types";
 import { seedSessions } from "@/lib/curalink-mock";
-import { sendChatMessage, getConversation, getHealth, getAuthToken } from "@/api/chatApi";
+import { sendChatMessage, getConversation, getHealth, getAuthToken, getUserConversations } from "@/api/chatApi";
 import { AuthDialog } from "@/components/curalink/AuthDialog";
 
 const SUGGESTIONS = [
@@ -45,14 +45,80 @@ const Index = () => {
   const [activeMsgId, setActiveMsgId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const mapConversationsToSessions = (conversations: any[] = []) => {
+    return conversations
+      .map((c) => ({
+        id: c.sessionId,
+        title: c.disease || c.patientName || "Research session",
+        messages: [],
+        createdAt: new Date(c.lastUpdatedAt || Date.now()).getTime(),
+      }))
+      .sort((a, b) => b.createdAt - a.createdAt);
+  };
+
+  const loadConversationMessages = async (sessionId: string) => {
+    setLoading(true);
+    try {
+      const data = await getConversation(sessionId);
+      const mappedMessages = (data.messages || data || []).map((m: any) => ({
+        ...m,
+        id: m.id || m._id || crypto.randomUUID(),
+        content: m.content || m.reply || (m.response ? m.response.conditionOverview : (m.structuredResponse ? m.structuredResponse.conditionOverview : "")),
+        sources: m.sources || m.topPublications || [],
+        trials: m.trials || m.topTrials || []
+      }));
+      setMessages(mappedMessages);
+    } catch (error) {
+      console.error("Error fetching conversation:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUserSessions = async () => {
+    try {
+      const data = await getUserConversations();
+      const mapped = mapConversationsToSessions(data?.conversations || []);
+      setSessions(mapped);
+      if (mapped.length > 0) {
+        setActiveId(mapped[0].id);
+        await loadConversationMessages(mapped[0].id);
+      } else {
+        setActiveId(null);
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error("Error fetching user conversations:", error);
+    }
+  };
+
   useEffect(() => {
     getHealth().catch((error) => {
       console.warn("Health check failed:", error?.message || error);
     });
   }, []);
 
+  useEffect(() => {
+    if (getAuthToken()) {
+      loadUserSessions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const handleUserUpdate = () => {
+      if (getAuthToken()) {
+        loadUserSessions();
+      }
+    };
+    window.addEventListener("curalink:user-updated", handleUserUpdate);
+    return () => window.removeEventListener("curalink:user-updated", handleUserUpdate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Load the most recent conversation on initial page load
   useEffect(() => {
+    if (getAuthToken()) return;
     if (sessions.length > 0 && !activeId) {
       const firstSessionId = sessions[0].id;
       setActiveId(firstSessionId);
@@ -236,6 +302,7 @@ const Index = () => {
             localStorage.setItem("curalink:user", JSON.stringify(user));
             window.dispatchEvent(new Event("curalink:user-updated"));
           } catch {}
+          loadUserSessions();
           setAuthOpen(false);
         }}
         title="Sign in to continue"

@@ -1,91 +1,167 @@
-# Curalink — AI Medical Research Assistant
+# Curalink - AI Medical Research Assistant (MERN)
 
-Curalink is a state-of-the-art AI-powered medical research assistant designed to deliver evidence-based clinical insights. By actively retrieving data from leading medical and academic repositories—including **PubMed**, **OpenAlex**, and **ClinicalTrials.gov**—it ensures accurate, up-to-date, and highly relevant responses for medical professionals, researchers, and students.
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-FFFFFF?style=for-the-badge&logo=Ollama&logoColor=black)
 
-## 🚀 Key Features
+**Curalink** is a full-stack AI medical research assistant that grounds every answer in peer-reviewed publications and clinical trials. It aggregates evidence from OpenAlex, PubMed, and ClinicalTrials.gov, ranks sources, and returns structured, cited summaries.
 
-- **Intelligent Medical Chat**: Conversational AI interface referencing real clinical trials and research papers.
-- **Evidence-Based Grounding**: Automatically searches and references data from reliable medical databases.
-- **Research Drawer**: A dedicated fly-out drawer to view in-depth details about cited papers and clinical trials, complete with metadata and links to original sources.
-- **Dynamic Visuals & State Management**: Real-time fetching indicators and beautifully rendered message bubbles for a seamless chatter experience.
-- **Modern Responsive UI**: Built with a mobile-first philosophy, adapting beautifully across desktops and mobile viewing environments.
-- **Dark & Light Mode**: Built-in support for theme toggling to accommodate varying preferences and low-light environments.
-- **High-Performance Infrastructure**: Lightning-fast builds, instant Hot Module Reloading (HMR), and optimized production bundles.
+## Key Features
 
-## 🛠️ Technology Stack
+- JWT auth with password hashing and user-scoped sessions
+- Medical context capture (patient, disease, location, additional context)
+- Multi-source retrieval with ranking and evidence grounding
+- Structured responses with citations, trials, safety notes, and limitations
+- Local LLM support via Ollama with optional provider fallbacks
 
-- **Framework**: [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/) with SWC for extremely fast development cycles
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components**: [shadcn/ui](https://ui.shadcn.com/) (Radix UI + Tailwind)
-- **Data Fetching**: [React Query (TanStack Query)](https://tanstack.com/query/latest)
-- **Routing**: [React Router](https://reactrouter.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Animations**: Framer Motion & standard Tailwind animations (`tailwindcss-animate`)
-- **Testing**: [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
+## Tech Stack
 
-## 🏗️ Project Structure
+| Category | Technologies |
+| --- | --- |
+| Frontend | React, Vite, Tailwind CSS |
+| Backend | Node.js, Express.js, JWT |
+| Database | MongoDB, Mongoose |
+| APIs | OpenAlex, PubMed, ClinicalTrials.gov |
+| LLM | Ollama (default), optional Hugging Face, Groq |
 
-- `src/components/curalink/`: Contains domain-specific components (e.g., `MessageBubble`, `ResearchDrawer`, `Sidebar`, `FetchingIndicator`).
-- `src/components/ui/`: Contains generic, reusable UI components built via shadcn/ui.
-- `src/api/`: Manages external API interactions, data fetching logic, and connections to PubMed/OpenAlex (`chatApi.js`).
-- `src/hooks/`: Custom React hooks (`use-mobile.tsx`, `use-toast.ts`).
-- `src/lib/`: Utilities, mock data (`curalink-mock.ts`), and TypeScript type definitions (`curalink-types.ts`).
-- `src/pages/`: Application views and routing pages (`Index.tsx`, `NotFound.tsx`).
+## Architecture Flow
 
-## 💻 How to Run Locally
+1. User registers or logs in to receive a JWT.
+2. User submits a question with medical context.
+3. Backend validates auth (optional for trial), loads history, and expands the query.
+4. Retrieval pulls candidates from OpenAlex, PubMed, and ClinicalTrials.gov.
+5. Ranking selects top evidence for LLM reasoning.
+6. LLM returns a structured, cited response.
+7. Sessions and sources persist to MongoDB.
 
-### Prerequisites
+## Setup & Installation
 
-You need [Node.js](https://nodejs.org/) (version 18+) installed.
+### 1) Prerequisites
 
-### Setup Steps
+- Node.js 18+
+- MongoDB (local or Atlas)
+- Ollama (optional, for local LLM)
 
-1. **Clone the repository:**
-   ```sh
-   git clone <YOUR_GIT_URL>
-   cd curalink-ai-research
-   ```
+### 2) Install dependencies
 
-2. **Install dependencies:**
-   ```sh
-   npm install
-   # or
-   bun install
-   ```
+From the repo root:
 
-3. **Start the development server:**
-   ```sh
-   npm run dev
-   # or
-   bun run dev
-   ```
-
-4. **Open your browser:**
-   Navigate to `http://localhost:5173` to see the application running.
-
-## 🧪 Testing
-
-To execute the unit and integration tests setup with Vitest and React Testing Library:
-
-```sh
-# Run tests
-npm run test
-
-# Run tests in watch mode
-npm run test:watch
+```bash
+npm install
 ```
 
-## 📦 Building for Production
+### 3) Environment variables
 
-To build the project for a production environment:
+Create .env files based on .env.example in both server/ and curalink-ai-research/.
 
-```sh
-npm run build
+server/.env (minimum)
+
+```bash
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/curalink
+CLIENT_ORIGIN=http://localhost:5173
+JWT_SECRET=your_super_secret_jwt_key_here
+
+# LLM Configuration
+LLM_PROVIDER=ollama
+LLM_FALLBACK_PROVIDER=groq
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=llama3.1:8b
+
+# Optional API keys
+HF_API_KEY=your_huggingface_api_key
+HF_MODEL=mistralai/Mistral-7B-Instruct-v0.3
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODEL=llama-3.3-70b-versatile
+OPENALEX_API_KEY=your_openalex_api_key
+
+# NCBI (PubMed) Configuration
+NCBI_API_KEY=your_ncbi_api_key
+NCBI_TOOL=curalink
+NCBI_EMAIL=you@example.com
 ```
 
-This will generate an optimized build in the `dist` folder. To preview the production build locally:
+curalink-ai-research/.env (minimum)
 
-```sh
-npm run preview
+```bash
+VITE_API_BASE_URL=http://localhost:5000
 ```
+
+### 4) Optional: local LLM
+
+```bash
+ollama pull llama3.1:8b
+ollama serve
+```
+
+### 5) Run the app
+
+Backend (from server/):
+
+```bash
+npm run dev
+```
+
+Frontend (from curalink-ai-research/):
+
+```bash
+npm run dev
+```
+
+- Frontend: http://localhost:5173
+- Backend health: http://localhost:5000/api/health
+
+## API Reference
+
+### Auth
+
+POST /api/auth/register
+
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "securepassword123",
+  "patientName": "John Doe",
+  "disease": "Type 2 Diabetes",
+  "additionalQuery": "Metformin + comorbidities",
+  "location": "Boston, MA"
+}
+```
+
+POST /api/auth/login
+
+```json
+{
+  "email": "jane@example.com",
+  "password": "securepassword123"
+}
+```
+
+### Chat
+
+POST /api/chat/message
+
+```json
+{
+  "sessionId": "session-123",
+  "message": "Latest treatment for lung cancer",
+  "patientName": "John Smith",
+  "disease": "Lung cancer",
+  "additionalQuery": "Immunotherapy",
+  "location": "Toronto, Canada",
+  "retrievalDepth": 180
+}
+```
+
+GET /api/chat/conversation/:sessionId
+
+GET /api/chat/conversations
+
+## Notes
+
+- Guests can send one request, then the UI prompts login.
+- Logged-in users see their saved sessions from MongoDB.

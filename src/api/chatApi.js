@@ -214,6 +214,10 @@ export async function getConversation(sessionId) {
   });
 }
 
+export async function getUserConversations() {
+  return request("/api/chat/conversations", { method: "GET" });
+}
+
 export async function getHealth() {
   return request("/api/health", { method: "GET" });
 }
@@ -241,6 +245,7 @@ export default {
   getUserContext,
   sendChatMessage,
   getConversation,
+  getUserConversations,
   getHealth,
   registerUser,
   loginUser,
