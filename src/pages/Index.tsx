@@ -341,7 +341,7 @@ const Index = () => {
                 e.preventDefault();
                 send(input);
               }}
-              className="relative rounded-2xl border border-border/70 bg-card/80 shadow-elegant focus-within:border-primary/60 focus-within:ring-1 focus-within:ring-primary/40 transition-all"
+              className="group relative rounded-2xl border border-border/70 bg-card/80 shadow-elegant transition-all duration-300 focus-within:-translate-y-0.5 focus-within:border-primary/60 focus-within:ring-1 focus-within:ring-primary/40 hover:border-primary/40 hover:shadow-[0_0_30px_hsl(var(--primary)/0.18)]"
             >
               <Textarea
                 value={input}
@@ -354,19 +354,25 @@ const Index = () => {
                 }}
                 placeholder="Ask a clinical research question…"
                 rows={1}
-                className="min-h-[56px] resize-none border-0 bg-transparent px-4 py-4 pr-14 text-sm text-foreground placeholder:text-muted-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="min-h-[56px] resize-none border-0 bg-transparent px-4 py-4 pr-14 text-sm text-foreground placeholder:text-muted-foreground/80 transition-[color,transform] duration-300 focus-visible:ring-0 focus-visible:ring-offset-0"
               />
               <Button
                 type="submit"
                 size="icon"
                 disabled={!input.trim() || loading}
-                className="absolute bottom-2.5 right-2.5 h-9 w-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
+                className="group absolute bottom-2.5 right-2.5 h-9 w-9 overflow-hidden rounded-lg bg-gradient-to-br from-primary via-primary/90 to-cyan-400 text-primary-foreground shadow-[0_0_18px_hsl(var(--primary)/0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:scale-110 hover:shadow-[0_0_30px_hsl(var(--primary)/0.55)] active:scale-95 disabled:opacity-40"
               >
-                <ArrowUp className="h-4 w-4" />
+                <span className="pointer-events-none absolute -inset-6 rounded-full bg-primary/30 opacity-60 blur-2xl transition-opacity duration-300 group-hover:opacity-90" />
+                <span className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-white/20 animate-pulse" />
+                <span className="pointer-events-none absolute inset-0 rounded-lg bg-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-30" />
+                <ArrowUp className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5" />
               </Button>
             </form>
-            <p className="mt-2 text-center text-[11px] text-foreground/70">
+            <p className="mt-2 text-center text-[8px] text-foreground/70">
               Curalink synthesizes literature for research support — verify with primary sources before clinical use.
+            </p>
+            <p className="mt-1 text-center text-[8px] uppercase tracking-[0.18em] text-foreground/50">
+              Powered by GROQ AI
             </p>
           </div>
         </div>
