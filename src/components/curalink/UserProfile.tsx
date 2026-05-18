@@ -6,8 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { clearAuthToken, setAuthToken } from "@/api/chatApi";
+import { AuthDialog } from "./AuthDialog";
 
 export type CuraUser = {
+  id?: string;
   name: string;
   email: string;
   // Medical context — consumed automatically by src/api/chatApi.js
@@ -22,24 +25,42 @@ const KEY = "curalink:user";
 export function useCuraUser() {
   const [user, setUser] = useState<CuraUser | null>(null);
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setUser(JSON.parse(raw));
-    } catch {}
+    const syncFromStorage = () => {
+      try {
+        const raw = localStorage.getItem(KEY);
+        setUser(raw ? JSON.parse(raw) : null);
+      } catch {
+        setUser(null);
+      }
+    };
+
+    syncFromStorage();
+
+    const handleUserUpdate = () => syncFromStorage();
+    window.addEventListener("curalink:user-updated", handleUserUpdate);
+
+    return () => {
+      window.removeEventListener("curalink:user-updated", handleUserUpdate);
+    };
   }, []);
-  const login = (u: CuraUser) => {
+  const login = (u: CuraUser, token?: string) => {
     localStorage.setItem(KEY, JSON.stringify(u));
+    if (token) setAuthToken(token);
     setUser(u);
+    window.dispatchEvent(new Event("curalink:user-updated"));
   };
   const logout = () => {
     localStorage.removeItem(KEY);
+    clearAuthToken();
     setUser(null);
+    window.dispatchEvent(new Event("curalink:user-updated"));
   };
   const update = (patch: Partial<CuraUser>) => {
     setUser((prev) => {
       if (!prev) return prev;
       const next = { ...prev, ...patch };
       localStorage.setItem(KEY, JSON.stringify(next));
+      window.dispatchEvent(new Event("curalink:user-updated"));
       return next;
     });
   };
@@ -49,7 +70,7 @@ export function useCuraUser() {
 interface Props {
   collapsed?: boolean;
   user: CuraUser | null;
-  onLogin: (u: CuraUser) => void;
+  onLogin: (u: CuraUser, token?: string) => void;
   onLogout: () => void;
   onUpdate?: (patch: Partial<CuraUser>) => void;
 }
@@ -57,8 +78,6 @@ interface Props {
 export function UserProfile({ collapsed, user, onLogin, onLogout, onUpdate }: Props) {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [patientName, setPatientName] = useState("");
   const [disease, setDisease] = useState("");
   const [additionalQuery, setAdditionalQuery] = useState("");
@@ -67,21 +86,6 @@ export function UserProfile({ collapsed, user, onLogin, onLogout, onUpdate }: Pr
   const initials = user?.name
     ? user.name.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase()
     : "";
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
-    onLogin({
-      name: name.trim(),
-      email: email.trim(),
-      patientName: patientName.trim() || name.trim(),
-      disease: disease.trim(),
-      additionalQuery: additionalQuery.trim(),
-      location: location.trim() || undefined,
-    });
-    setOpen(false);
-    setName(""); setEmail(""); setPatientName(""); setDisease(""); setAdditionalQuery(""); setLocation("");
-  };
 
   const openEditor = () => {
     if (!user) return;
@@ -117,49 +121,11 @@ export function UserProfile({ collapsed, user, onLogin, onLogout, onUpdate }: Pr
           <LogIn className="h-4 w-4 text-primary" />
           {!collapsed && <span className="text-sm">Sign in</span>}
         </Button>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-gradient">Sign in to Curalink</DialogTitle>
-              <DialogDescription>
-                Save your research sessions and personalize medical context for every query.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={submit} className="space-y-3 pt-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Full name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Dr. Jane Smith" required />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jane@hospital.org" required />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="patientName">Patient name</Label>
-                  <Input id="patientName" value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="John Doe" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="disease">Disease / condition</Label>
-                  <Input id="disease" value={disease} onChange={(e) => setDisease(e.target.value)} placeholder="Type 2 Diabetes" />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="location">Location <span className="text-muted-foreground">(optional)</span></Label>
-                <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Boston, MA" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="additionalQuery">Additional context</Label>
-                <Textarea id="additionalQuery" value={additionalQuery} onChange={(e) => setAdditionalQuery(e.target.value)} placeholder="Comorbidities, current medications, focus areas…" rows={2} />
-              </div>
-              <DialogFooter>
-                <Button type="submit" className="w-full bg-gradient-to-r from-primary to-primary-glow">
-                  Continue
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <AuthDialog
+          open={open}
+          onOpenChange={setOpen}
+          onAuthSuccess={(u) => onLogin(u)}
+        />
       </>
     );
   }

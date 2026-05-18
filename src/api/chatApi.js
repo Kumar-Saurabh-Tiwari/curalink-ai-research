@@ -29,6 +29,27 @@ export const API_BASE_URL =
   "http://localhost:5000";
 
 const USER_STORAGE_KEY = "curalink:user";
+const TOKEN_STORAGE_KEY = "curalink:token";
+
+export function getAuthToken() {
+  try {
+    return localStorage.getItem(TOKEN_STORAGE_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+export function setAuthToken(token) {
+  try {
+    if (token) localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  } catch {}
+}
+
+export function clearAuthToken() {
+  try {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  } catch {}
+}
 
 /**
  * Reads the signed-in user from localStorage and extracts the medical
@@ -76,8 +97,13 @@ export function getUserContext() {
  * @returns {Promise<any>}
  */
 async function request(path, init = {}) {
+  const token = getAuthToken();
+  const headers = { "Content-Type": "application/json", ...(init.headers || {}) };
+  if (token && !headers.Authorization) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json", ...(init.headers || {}) },
+    headers,
     ...init,
   });
   const text = await res.text();
@@ -140,10 +166,14 @@ export async function sendChatMessage({ sessionId, message, context }) {
   if (!sessionId) throw new Error("sendChatMessage: sessionId is required");
   if (!message)   throw new Error("sendChatMessage: message is required");
 
+  const ctx = context || getUserContext();
   const body = {
     sessionId,
     message,
-    context: context || getUserContext(),
+    patientName: ctx.patientName,
+    disease: ctx.disease,
+    additionalQuery: ctx.additionalQuery,
+    location: ctx.location,
   };
 
   return request("/api/chat/message", {
@@ -184,10 +214,34 @@ export async function getConversation(sessionId) {
   });
 }
 
+export async function getHealth() {
+  return request("/api/health", { method: "GET" });
+}
+
+export async function registerUser(payload) {
+  return request("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function loginUser(payload) {
+  return request("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 // Default export for convenience.
 export default {
   API_BASE_URL,
+  getAuthToken,
+  setAuthToken,
+  clearAuthToken,
   getUserContext,
   sendChatMessage,
   getConversation,
+  getHealth,
+  registerUser,
+  loginUser,
 };

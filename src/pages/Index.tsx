@@ -9,7 +9,8 @@ import { FetchingIndicator } from "@/components/curalink/FetchingIndicator";
 import { WelcomeOverlay } from "@/components/curalink/WelcomeOverlay";
 import { ChatSession, Message } from "@/lib/curalink-types";
 import { seedSessions } from "@/lib/curalink-mock";
-import { sendChatMessage, getConversation } from "@/api/chatApi";
+import { sendChatMessage, getConversation, getHealth, getAuthToken } from "@/api/chatApi";
+import { AuthDialog } from "@/components/curalink/AuthDialog";
 
 const SUGGESTIONS = [
   { label: "Latest treatment for lung cancer", icon: "🫁" },
@@ -36,12 +37,19 @@ const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => typeof window !== "undefined" && window.innerWidth < 768,
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeMsgId, setActiveMsgId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getHealth().catch((error) => {
+      console.warn("Health check failed:", error?.message || error);
+    });
+  }, []);
 
   // Load the most recent conversation on initial page load
   useEffect(() => {
@@ -151,6 +159,16 @@ const Index = () => {
 
   const send = async (text: string) => {
     if (!text.trim() || loading) return;
+
+    const token = getAuthToken();
+    if (!token) {
+      const trialCount = Number(localStorage.getItem("curalink:trial-count") || "0");
+      if (trialCount >= 1) {
+        setAuthOpen(true);
+        return;
+      }
+      localStorage.setItem("curalink:trial-count", "1");
+    }
     const userMsg: Message = {
       id: crypto.randomUUID(),
       role: "user",
@@ -210,6 +228,19 @@ const Index = () => {
 
   return (
     <div className="relative flex h-[100dvh] w-full overflow-hidden bg-background text-foreground">
+      <AuthDialog
+        open={authOpen}
+        onOpenChange={setAuthOpen}
+        onAuthSuccess={(user) => {
+          try {
+            localStorage.setItem("curalink:user", JSON.stringify(user));
+            window.dispatchEvent(new Event("curalink:user-updated"));
+          } catch {}
+          setAuthOpen(false);
+        }}
+        title="Sign in to continue"
+        description="You've used your free request. Sign in to keep researching."
+      />
       <WelcomeOverlay />
       {/* Ambient animated gradient backdrop */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
